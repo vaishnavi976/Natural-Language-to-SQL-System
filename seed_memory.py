@@ -1,9 +1,3 @@
-"""
-seed_memory.py
-Pre-seeds Vanna 2.0 DemoAgentMemory with 15 high-quality Q&A SQL pairs.
-Run after setup_database.py:  python seed_memory.py
-"""
-
 import asyncio
 import uuid
 from vanna_setup import get_agent
@@ -148,7 +142,6 @@ async def seed():
         group_memberships=["admin", "user"],
     )
 
-    # ToolContext requires: user, conversation_id, request_id, agent_memory
     ctx = ToolContext(
         user=admin_user,
         conversation_id=str(uuid.uuid4()),
