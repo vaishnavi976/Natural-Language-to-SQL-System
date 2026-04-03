@@ -1,0 +1,36 @@
+id,patient_id,doctor_id,appointment_date,status,notes
+21,98,10,2026-03-17 20:48:32,Completed,Referral given
+28,96,7,2026-03-23 23:38:53,Completed,
+29,56,5,2026-03-08 13:58:22,Cancelled,
+37,166,7,2026-03-15 15:35:44,Completed,Lab tests ordered
+104,137,9,2026-03-07 05:20:17,Completed,Referral given
+114,88,2,2026-03-30 15:16:11,No-Show,
+137,181,3,2026-03-02 17:03:39,Completed,Follow-up required
+138,35,13,2026-03-26 07:18:34,Scheduled,
+153,181,6,2026-03-03 14:43:01,Completed,
+157,90,2,2026-03-26 17:47:56,Completed,Patient came on time
+180,39,3,2026-03-02 12:06:20,Scheduled,
+188,89,11,2026-03-10 03:50:53,Scheduled,
+191,63,2,2026-03-17 23:05:23,Cancelled,Referral given
+218,49,14,2026-03-11 21:07:03,No-Show,Patient came on time
+258,85,4,2026-03-27 02:34:06,Completed,
+264,35,13,2026-03-10 23:44:17,Completed,
+281,108,11,2026-03-21 13:12:13,No-Show,
+297,153,9,2026-03-14 08:16:56,Completed,
+311,63,2,2026-03-08 23:20:38,Scheduled,
+323,159,14,2026-03-15 22:23:01,No-Show,
+339,111,14,2026-03-28 11:31:31,Completed,Patient came on time
+345,183,5,2026-03-27 05:53:38,Completed,
+352,36,11,2026-03-05 08:40:16,Completed,Lab tests ordered
+366,172,6,2026-03-20 18:16:56,Completed,Patient came on time
+371,44,2,2026-03-05 09:41:26,Completed,Patient came on time
+387,26,5,2026-03-19 01:28:40,Completed,Referral given
+392,106,2,2026-03-02 23:33:20,Cancelled,Patient came on time
+405,133,5,2026-03-21 19:52:36,Completed,Referral given
+417,5,4,2026-03-22 15:25:13,Completed,Patient came on time
+419,193,2,2026-03-19 18:52:18,Completed,
+440,73,12,2026-03-24 20:15:58,Completed,
+445,199,8,2026-03-17 15:58:19,Completed,
+449,122,6,2026-03-16 19:23:45,Completed,
+454,81,8,2026-03-11 15:09:38,Cancelled,Lab tests ordered
+463,63,4,2026-03-02 01:08:25,Completed,
