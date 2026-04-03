@@ -1,9 +1,3 @@
-"""
-sql_validator.py
-Validates AI-generated SQL before execution.
-Enforces SELECT-only, blocks dangerous keywords, rejects system-table access.
-"""
-
 import re
 from dataclasses import dataclass, field
 
@@ -12,9 +6,6 @@ from dataclasses import dataclass, field
 class ValidationResult:
     is_valid: bool
     error: str = field(default="")
-
-
-# ── Patterns ──────────────────────────────────────────────────────────────────
 _BLOCKED_STATEMENTS = re.compile(
     r"\b(INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE|CREATE|REPLACE|"
     r"MERGE|UPSERT|RENAME|EXEC|EXECUTE|CALL|DO)\b",

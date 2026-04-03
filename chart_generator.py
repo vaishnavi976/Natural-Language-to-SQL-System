@@ -1,8 +1,3 @@
-"""
-chart_generator.py
-Generates a Plotly chart dict from a query result.
-Returns (None, "") when a chart is not appropriate.
-"""
 from __future__ import annotations
 from typing import Any
 
