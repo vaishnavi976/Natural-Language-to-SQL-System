@@ -1,7 +1,3 @@
-"""
-main.py  —  NL2SQL Clinic Chatbot (FastAPI)
-Start:  uvicorn main:app --port 8000 --reload
-"""
 from __future__ import annotations
 
 import logging
@@ -65,8 +61,6 @@ class HealthResponse(BaseModel):
     database:           str
     agent_memory_items: int
 
-
-# ── DB helpers ────────────────────────────────────────────────────────────────
 def _db_ok() -> bool:
     try:
         c = sqlite3.connect(DB_PATH); c.execute("SELECT 1"); c.close(); return True
@@ -92,7 +86,7 @@ def _mem_count() -> int:
         return -1
 
 
-# ── SQL extraction from UiComponent ──────────────────────────────────────────
+
 def _deep_find_sql(obj, depth: int = 0) -> str | None:
     """
     Recursively walk any object/dict/list looking for a string
@@ -102,13 +96,13 @@ def _deep_find_sql(obj, depth: int = 0) -> str | None:
     if depth > 8:
         return None
 
-    # Plain string
+    
     if isinstance(obj, str):
         if SELECT_RE.search(obj):
             return obj.strip()
         return None
 
-    # Dict
+   
     if isinstance(obj, dict):
         # Prioritise the key literally named "sql"
         if "sql" in obj and isinstance(obj["sql"], str) and SELECT_RE.search(obj["sql"]):
@@ -119,7 +113,7 @@ def _deep_find_sql(obj, depth: int = 0) -> str | None:
                 return found
         return None
 
-    # List / tuple
+   
     if isinstance(obj, (list, tuple)):
         for item in obj:
             found = _deep_find_sql(item, depth + 1)
@@ -127,7 +121,7 @@ def _deep_find_sql(obj, depth: int = 0) -> str | None:
                 return found
         return None
 
-    # Pydantic model or dataclass — walk __dict__ / model_fields
+    
     attrs = {}
     try:
         attrs = vars(obj)
@@ -142,7 +136,7 @@ def _deep_find_sql(obj, depth: int = 0) -> str | None:
                 pass
 
     if attrs:
-        # Prioritise attribute literally named "sql"
+   
         if "sql" in attrs:
             found = _deep_find_sql(attrs["sql"], depth + 1)
             if found:
@@ -196,7 +190,6 @@ def _deep_find_text(obj, depth: int = 0) -> str:
     return ""
 
 
-# ── DataFrameComponent extraction ────────────────────────────────────────────
 def _extract_dataframe(component) -> tuple[list[str], list[list[Any]]] | None:
     """
     Component[12] is a DataFrameComponent — it holds the already-executed results.
@@ -257,7 +250,7 @@ async def _ask_vanna(question: str) -> tuple[str | None, str, list[str] | None, 
     return sql, " ".join(text_parts).strip(), cols, rows
 
 
-# ── Routes ─────────────────────────────────────────────────────────────────────
+# Routes 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: Request, body: ChatRequest):
     ip = request.client.host if request.client else "unknown"
@@ -273,7 +266,6 @@ async def chat(request: Request, body: ChatRequest):
         log.info("CACHE HIT")
         return JSONResponse({**_cache[cache_key], "cached": True})
 
-    # ── Ask Vanna ─────────────────────────────────────────────────────────
     try:
         sql, agent_text, vanna_cols, vanna_rows = await _ask_vanna(question)
     except Exception as exc:
@@ -287,13 +279,12 @@ async def chat(request: Request, body: ChatRequest):
 
     log.info("SQL | %s", sql)
 
-    # ── Validate ──────────────────────────────────────────────────────────
     val = validate_sql(sql)
     if not val.is_valid:
         log.warning("SQL REJECTED | %s", val.error)
         return ChatResponse(message=f"SQL rejected for safety: {val.error}", sql_query=sql)
 
-    # ── Execute (use Vanna's pre-fetched DataFrame if available) ──────────
+  
     if vanna_cols is not None and vanna_rows is not None:
         columns, rows = vanna_cols, vanna_rows
         log.info("Using Vanna DataFrame result: %d rows", len(rows))
@@ -310,7 +301,6 @@ async def chat(request: Request, body: ChatRequest):
             sql_query=sql, columns=columns, rows=[], row_count=0,
         )
 
-    # ── Chart ─────────────────────────────────────────────────────────────
     chart, chart_type = generate_chart(columns, rows, question)
 
     message = (
