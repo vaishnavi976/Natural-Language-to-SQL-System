@@ -39,6 +39,22 @@ This project is a fully working NL2SQL chatbot for a clinic management system, b
 
 ---
 
+## Streamlit UI Screenshot
+
+> The optional Streamlit frontend (`streamlit_app.py`) running at `http://localhost:8501`
+
+![NL2SQL Chatbot Streamlit UI](nlp2sql_ui.png)
+
+The UI provides:
+- **Sidebar** — configurable backend API URL and example questions for quick access
+- **Question input** — plain English text box with an Ask button
+- **Response section** — natural language summary of the result
+- **Generated SQL** — collapsible block showing the exact SQL that was executed
+- **Data table** — raw query results displayed as a DataFrame
+- **Visualization** — interactive Plotly chart (bar / line / pie) auto-selected based on the data shape and question phrasing
+
+---
+
 ## 2. Tech Stack
 
 | Technology | Version | Purpose |
@@ -546,3 +562,4 @@ curl http://localhost:8000/health
 | Structured logging | Timestamped logs at every pipeline step with stage, row count, chart type |
 
 ---
+
