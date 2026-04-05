@@ -1,17 +1,7 @@
-"""
-seed_memory.py
-Seeds Vanna 2.0 DemoAgentMemory with all 20 evaluation questions + SQL.
-Run after setup_database.py:   python seed_memory.py
-
-Every seeded pair maps to one of the 20 test questions — verified correct
-against clinic.db.
-"""
-
 import asyncio
 import uuid
 from vanna_setup import get_agent
 
-# ── All 20 evaluation questions with verified-correct SQLite SQL ──────────────
 QA_PAIRS = [
     # Q1
     {

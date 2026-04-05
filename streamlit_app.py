@@ -1,3 +1,5 @@
+from timeit import main
+
 import streamlit as st
 import requests
 import pandas as pd
@@ -7,23 +9,23 @@ import plotly.graph_objects as go
 API_URL = "http://localhost:8000/chat"
 
 st.set_page_config(
-    page_title="AI Clinic Chatbot",
-    page_icon="🧠",
+    page_title="NL2SQL Chatbot",
+    page_icon="",
     layout="wide"
 )
 
 # ── Header ─────────────────────────────────────────────
-st.title("🧠 AI Clinic Analytics Chatbot")
+st.title("NL2SQL Chatbot Using Vanna AI and FastAPI")
 st.markdown("Ask questions about clinic data in plain English")
 
 # ── Sidebar ────────────────────────────────────────────
 with st.sidebar:
-    st.header("⚙️ Settings")
+    st.header(" Settings")
     st.markdown("Backend API:")
     st.code(API_URL)
 
     st.markdown("---")
-    st.markdown("### 💡 Example Questions")
+    st.markdown("### Example Questions")
     st.markdown("""
     - How many patients do we have?
     - Show revenue by doctor
@@ -52,19 +54,19 @@ if st.button("Ask") and question:
             st.stop()
 
     # ── Show message ─────────────────────────────
-    st.subheader("🧾 Response")
+    st.subheader(" Response")
     st.write(data.get("message", ""))
 
     # ── Show SQL ────────────────────────────────
     if data.get("sql_query"):
-        with st.expander("🧠 Generated SQL"):
+        with st.expander(" Generated SQL"):
             st.code(data["sql_query"], language="sql")
 
     # ── Show Table ──────────────────────────────
     if data.get("columns") and data.get("rows"):
         df = pd.DataFrame(data["rows"], columns=data["columns"])
 
-        st.subheader("📊 Data")
+        st.subheader(" Data")
         st.dataframe(df, use_container_width=True)
 
         st.markdown(f"**Rows returned:** {data.get('row_count')}")
@@ -77,7 +79,11 @@ if st.button("Ask") and question:
             fig = go.Figure(data=data["chart"]["data"])
             fig.update_layout(data["chart"]["layout"])
 
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(
+                fig,
+                use_container_width=True,
+                theme="streamlit"  
+)
 
         except Exception as e:
             st.warning(f"⚠️ Chart rendering failed: {e}")
@@ -89,5 +95,5 @@ if st.button("Ask") and question:
 # ── Footer ─────────────────────────────────────
 st.markdown("---")
 st.markdown(
-    "Built with ❤️ using FastAPI + Vanna + Groq + Streamlit"
+    "Built with using FastAPI + Vanna + Groq + Streamlit"
 )

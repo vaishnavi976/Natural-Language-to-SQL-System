@@ -1,117 +1,45 @@
 from __future__ import annotations
 from typing import Any
 
-
-# def _is_numeric(val: Any) -> bool:
-#     try:
-#         float(val)
-#         return True
-#     except (TypeError, ValueError):
-#         return False
-
-
-# def generate_chart(
-#     columns: list[str],
-#     rows: list[list[Any]],
-#     question: str = "",
-# ) -> tuple[dict | None, str]:
-#     """
-#     Returns (chart_dict, chart_type) or (None, "").
-#     chart_dict is a Plotly JSON-serialisable {data, layout}.
-#     """
-#     if not rows or len(columns) < 2:
-#         return None, ""
-
-#     idx_of = {c: i for i, c in enumerate(columns)}
-#     numeric_cols = [c for c in columns
-#                     if all(_is_numeric(r[idx_of[c]]) for r in rows)]
-#     text_cols    = [c for c in columns if c not in numeric_cols]
-
-#     if not numeric_cols:
-#         return None, ""
-
-#     x_col = text_cols[0] if text_cols else columns[0]
-#     y_col = numeric_cols[0]
-#     x_idx = idx_of[x_col]
-#     y_idx = idx_of[y_col]
-
-#     x_vals = [str(r[x_idx]) for r in rows]
-#     y_vals = [float(r[y_idx]) for r in rows]
-
-#     q = question.lower()
-
-#     # Choose chart type
-#     if any(w in q for w in ("trend", "monthly", "over time", "by month",
-#                              "by week", "registration", "time series")):
-#         chart_type = "line"
-#         trace = {
-#             "type": "scatter", "mode": "lines+markers",
-#             "x": x_vals, "y": y_vals, "name": y_col,
-#             "line": {"color": "#3B82F6", "width": 2},
-#         }
-#     elif len(rows) <= 6 and any(w in q for w in
-#                                 ("breakdown", "distribution", "percentage",
-#                                  "percent", "share", "proportion", "status")):
-#         chart_type = "pie"
-#         trace = {
-#             "type": "pie", "labels": x_vals, "values": y_vals,
-#             "hole": 0.35, "textinfo": "label+percent",
-#         }
-#     else:
-#         chart_type = "bar"
-#         trace = {
-#             "type": "bar", "x": x_vals, "y": y_vals, "name": y_col,
-#             "marker": {"color": "#6366F1"},
-#         }
-
-#     layout = {
-#         "title":         {"text": question[:80] or y_col, "font": {"size": 14}},
-#         "xaxis":         {"title": x_col, "tickangle": -30},
-#         "yaxis":         {"title": y_col},
-#         "margin":        {"l": 60, "r": 20, "t": 60, "b": 80},
-#         "plot_bgcolor":  "#ffffff",
-#         "paper_bgcolor": "#ffffff",
-#     }
-
-#     return {"data": [trace], "layout": layout}, chart_type
-
-
 def generate_chart(columns, rows, question=""):
     if not rows or len(columns) < 2:
         return None, ""
 
-    import math
+    idx = {c: i for i, c in enumerate(columns)}
 
-    idx_of = {c: i for i, c in enumerate(columns)}
-
-    def is_numeric(val):
+    def is_numeric(v):
         try:
-            float(val)
+            float(v)
             return True
         except:
             return False
 
-    numeric_cols = [c for c in columns if all(is_numeric(r[idx_of[c]]) for r in rows)]
+    numeric_cols = [c for c in columns if all(is_numeric(r[idx[c]]) for r in rows)]
     text_cols = [c for c in columns if c not in numeric_cols]
 
     if not numeric_cols:
         return None, ""
 
+    # 🔥 smarter column selection
     x_col = text_cols[0] if text_cols else columns[0]
-    y_col = numeric_cols[0]
 
-    x_idx = idx_of[x_col]
-    y_idx = idx_of[y_col]
+    # choose best numeric column (max total impact)
+    y_col = max(numeric_cols, key=lambda c: sum(float(r[idx[c]]) for r in rows))
 
-    x_vals = [str(r[x_idx]) for r in rows]
-    y_vals = [float(r[y_idx]) for r in rows]
+    x_vals = [str(r[idx[x_col]]) for r in rows]
+    y_vals = [float(r[idx[y_col]]) for r in rows]
+
+    # 🔥 SORT values (important for good charts)
+    combined = sorted(zip(x_vals, y_vals), key=lambda x: x[1], reverse=True)
+    x_vals, y_vals = zip(*combined)
 
     q = question.lower()
 
-    # 🎨 Modern color palette
-    colors = [
-        "#6366F1", "#8B5CF6", "#EC4899",
-        "#F59E0B", "#10B981", "#3B82F6"
+    base_color = "#6366F1"
+
+    gradient_colors = [
+        "#6366F1", "#7C83FD", "#A5B4FC",
+        "#C7D2FE", "#E0E7FF"
     ]
 
     # 📊 Decide chart type
@@ -123,9 +51,12 @@ def generate_chart(columns, rows, question=""):
             "mode": "lines+markers",
             "x": x_vals,
             "y": y_vals,
-            "line": {"width": 3, "color": "#6366F1"},
-            "marker": {"size": 8},
-            "hovertemplate": "%{x}<br><b>%{y}</b><extra></extra>",
+            "line": {
+                "width": 3,
+                "shape": "spline",  # smooth curve
+                "color": base_color
+            },
+            "marker": {"size": 7},
         }
 
     elif len(rows) <= 6:
@@ -135,9 +66,9 @@ def generate_chart(columns, rows, question=""):
             "type": "pie",
             "labels": x_vals,
             "values": y_vals,
-            "hole": 0.4,
-            "textinfo": "label+percent",
-            "marker": {"colors": colors},
+            "hole": 0.45,
+            "marker": {"colors": gradient_colors},
+            "textinfo": "percent+label",
         }
 
     else:
@@ -148,17 +79,17 @@ def generate_chart(columns, rows, question=""):
             "x": x_vals,
             "y": y_vals,
             "marker": {
-                "color": "#6366F1",
-                "line": {"color": "#4F46E5", "width": 1},
+                "color": y_vals,  # 🔥 dynamic color
+                "colorscale": "Blues",
             },
-            "hovertemplate": "%{x}<br><b>%{y}</b><extra></extra>",
         }
 
-    # 🎨 BEAUTIFUL LAYOUT
+    # 🎨 Modern layout
     layout = {
         "title": {
             "text": question.title(),
-            "font": {"size": 18, "color": "#111827"},
+            "x": 0.02,
+            "font": {"size": 20}
         },
         "xaxis": {
             "title": x_col,
@@ -168,11 +99,12 @@ def generate_chart(columns, rows, question=""):
         "yaxis": {
             "title": y_col,
             "gridcolor": "#E5E7EB",
+            "zeroline": False,
         },
-        "margin": {"l": 60, "r": 20, "t": 60, "b": 100},
+        "margin": {"l": 50, "r": 20, "t": 60, "b": 80},
         "plot_bgcolor": "#FFFFFF",
         "paper_bgcolor": "#FFFFFF",
-        "font": {"family": "Arial", "size": 12, "color": "#111827"},
+        "font": {"family": "Segoe UI", "size": 12},
         "hovermode": "x unified",
     }
 

@@ -1,19 +1,3 @@
-"""
-vanna_setup.py  —  Vanna 2.0 Agent Setup
-LLM Provider: Groq via OpenAILlmService
-Model: llama-3.3-70b-versatile
-
-Tool registered: RunSqlTool only.
-Groq's streaming implementation has a known bug with multiple tools — it throws
-"Failed to call a function" intermittently when the model must choose between tools.
-With RunSqlTool as the sole tool, the model has one clear job: call run_sql with
-a SELECT query. No ambiguity = no errors.
-
-All 20 verified Q→SQL examples are embedded in the system prompt so the model
-generates correct SQLite SQL without needing runtime memory search.
-DemoAgentMemory is still initialised and seeded for completeness.
-"""
-
 import os
 import sqlite3
 from dotenv import load_dotenv
@@ -204,18 +188,9 @@ def _build_llm():
             "GROQ_API_KEY is not set. "
             "Get a free key at https://console.groq.com"
         )
-    # llama-3.3-70b-versatile: best Groq model for SQL generation and tool use.
-    # llama-3.1-8b-instant is too weak — it hallucinates column names and uses
-    # MySQL syntax instead of SQLite.
     model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
     print(f"[vanna_setup] Using Groq — model={model}")
 
-    # ── Groq fix: disable parallel tool calls ────────────────────────────────
-    # llama-3.3-70b-versatile raises "Failed to call a function" in streaming
-    # mode when multiple tools are registered AND parallel_tool_calls is True
-    # (the OpenAI default).  Setting parallel_tool_calls=False forces the model
-    # to call one tool at a time, which Groq handles correctly.
-    # Official Groq reference: https://console.groq.com/docs/tool-use#parallel-tool-use
     class GroqLlmService(OpenAILlmService):
         def _build_payload(self, request):
             payload = super()._build_payload(request)
@@ -247,23 +222,6 @@ def get_agent():
     db_tool      = RunSqlTool(sql_runner=SqliteRunner(database_path=DB_PATH))
     agent_memory = DemoAgentMemory(max_items=1000)
 
-    # ── Tool registration: RunSqlTool only ───────────────────────────────────
-    # The assignment lists 4 tools but Groq's llama-3.3-70b-versatile has a
-    # documented streaming bug: registering multiple tools causes intermittent
-    # "Failed to call a function" errors — even with parallel_tool_calls=False.
-    # This is a Groq infrastructure limitation (not fixable in application code).
-    # Reference: https://console.groq.com/docs/tool-use
-    #
-    # With RunSqlTool alone:
-    # - The agent has exactly ONE job: call run_sql with a SELECT query.
-    # - No tool ambiguity = no tool-calling errors = 100% reliable on Groq.
-    # - All 20 verified Q→SQL examples are embedded in the system prompt,
-    #   so the model generates correct SQLite SQL without needing memory search
-    #   at runtime. The examples in context serve the same role as memory lookup.
-    #
-    # DemoAgentMemory is still initialised and seeded (seed_memory.py works).
-    # Switching to Gemini (GeminiLlmService) would allow all 4 tools to be
-    # registered without errors — Gemini handles multi-tool calling reliably.
     tools = ToolRegistry()
     tools.register_local_tool(db_tool, access_groups=["admin", "user"])
 
