@@ -173,7 +173,7 @@ SELECT ROUND(
   / COUNT(*) * 100, 2) AS noshows_pct
 FROM appointments
 ```
-**Result:** No percentage
+**Result:** No percentage because no-shows
 ---
 
 ### Q15 — Show the busiest day of the week for appointments
